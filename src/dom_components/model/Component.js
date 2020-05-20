@@ -103,7 +103,7 @@ const Component = Backbone.Model.extend(Styleable).extend(
       highlightable: true,
       copyable: true,
       resizable: false,
-      editable: false,
+      editable: true,
       layerable: true,
       selectable: true,
       hoverable: true,
@@ -158,15 +158,10 @@ const Component = Backbone.Model.extend(Styleable).extend(
       }
 
       const propagate = this.get('propagate');
-      propagate &&
-        this.set('propagate', isArray(propagate) ? propagate : [propagate]);
+      propagate && this.set('propagate', isArray(propagate) ? propagate : [propagate]);
 
       // Check void elements
-      if (
-        opt &&
-        opt.config &&
-        opt.config.voidElements.indexOf(this.get('tagName')) >= 0
-      ) {
+      if (opt && opt.config && opt.config.voidElements.indexOf(this.get('tagName')) >= 0) {
         this.set('void', true);
       }
 
@@ -194,9 +189,7 @@ const Component = Backbone.Model.extend(Styleable).extend(
       // Register global updates for collection properties
       ['classes', 'traits', 'components'].forEach(name => {
         const events = `add remove ${name !== 'components' ? 'change' : ''}`;
-        this.listenTo(this.get(name), events.trim(), (...args) =>
-          this.emitUpdate(name, ...args)
-        );
+        this.listenTo(this.get(name), events.trim(), (...args) => this.emitUpdate(name, ...args));
       });
 
       if (!opt.temporary) {
@@ -365,9 +358,7 @@ const Component = Backbone.Model.extend(Styleable).extend(
 
       const attrPrev = { ...this.previous('attributes') };
       const diff = shallowDiff(attrPrev, this.get('attributes'));
-      keys(diff).forEach(pr =>
-        this.trigger(`change:attributes:${pr}`, this, diff[pr], opts)
-      );
+      keys(diff).forEach(pr => this.trigger(`change:attributes:${pr}`, this, diff[pr], opts));
     },
 
     /**
@@ -458,9 +449,7 @@ const Component = Backbone.Model.extend(Styleable).extend(
       const id = this.getId();
 
       // Add classes
-      this.get('classes').forEach(cls =>
-        classes.push(isString(cls) ? cls : cls.get('name'))
-      );
+      this.get('classes').forEach(cls => classes.push(isString(cls) ? cls : cls.get('name')));
       classes.length && (attributes.class = classes.join(' '));
 
       // Check if we need an ID on the component
@@ -575,8 +564,7 @@ const Component = Backbone.Model.extend(Styleable).extend(
       const components = this.get('components');
       const addChild = !this.opt.avoidChildren;
       this.set('components', comps);
-      addChild &&
-        comps.add(isFunction(components) ? components(this) : components);
+      addChild && comps.add(isFunction(components) ? components(this) : components);
       this.listenTo(...toListen);
       return this;
     },
@@ -908,8 +896,7 @@ const Component = Backbone.Model.extend(Styleable).extend(
       const i18nPfx = 'domComponents.names.';
       const i18nName = cName && em && em.t(`${i18nPfx}${cName}`);
       const i18nNameTag = nameTag && em && em.t(`${i18nPfx}${nameTag}`);
-      const i18nDefName =
-        em && (em.t(`${i18nPfx}${type}`) || em.t(`${i18nPfx}${tagName}`));
+      const i18nDefName = em && (em.t(`${i18nPfx}${type}`) || em.t(`${i18nPfx}${tagName}`));
       return (
         this.get('custom-name') || // Used in Layers (when the user changes the name)
         i18nName ||
@@ -992,9 +979,7 @@ const Component = Backbone.Model.extend(Styleable).extend(
       }
 
       let attrString = attrs.length ? ` ${attrs.join(' ')}` : '';
-      let code = `<${tag}${attrString}${sTag ? '/' : ''}>${model.get(
-        'content'
-      )}`;
+      let code = `<${tag}${attrString}${sTag ? '/' : ''}>${model.get('content')}`;
       model.get('components').each(comp => (code += comp.toHTML(opts)));
       !sTag && (code += `</${tag}>`);
 
@@ -1124,9 +1109,7 @@ const Component = Backbone.Model.extend(Styleable).extend(
       // Need to convert script functions to strings
       if (typeof scr == 'function') {
         var scrStr = scr.toString().trim();
-        scrStr = scrStr
-          .replace(/^function[\s\w]*\(\)\s?\{/, '')
-          .replace(/\}$/, '');
+        scrStr = scrStr.replace(/^function[\s\w]*\(\)\s?\{/, '').replace(/\}$/, '');
         scr = scrStr.trim();
       }
 
@@ -1139,9 +1122,7 @@ const Component = Backbone.Model.extend(Styleable).extend(
         // better optimization inside JS generator
         this.scriptUpdated();
         const result = this.attributes[v] || '';
-        return isArray(result) || typeof result == 'object'
-          ? JSON.stringify(result)
-          : result;
+        return isArray(result) || typeof result == 'object' ? JSON.stringify(result) : result;
       });
 
       return scr;
